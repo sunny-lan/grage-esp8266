@@ -1,12 +1,11 @@
 #include <FS.h>
+#include <Arduino.h>
 
-struct Config{
-  char wsHost[256];
-  char deviceName[32];
-  char deviceID[64];
-} config;
+#include "config.h"
 
-bool setupConfg()
+Config config;
+
+bool setupConfig()
 {
   Serial.println("mounting FS...");
 
@@ -29,9 +28,12 @@ bool setupConfg()
   Serial.print("before config wsHost = "); Serial.println(config.wsHost);
   Serial.print("before config deviceName = "); Serial.println(config.deviceName);
   Serial.print("before config deviceID = "); Serial.println(config.deviceID);
+  Serial.print("before config apSSID = "); Serial.println(config.apSSID);
+  Serial.print("before config apPassword = "); Serial.println(config.apSSID);
   
   return 0;
 }
+
 
 const char *configFilePath = "/config.bin";
 
@@ -74,8 +76,10 @@ void genRandomID(char st, char ed, int len)
 
 void setConfigDefaults()
 {
-  strcpy(config.wsHost, "server domain here");
-  strcpy(config.deviceName, "grage");
+  strcpy(config.wsHost, "grage.azurewebsites.net");
+  strcpy(config.deviceName, "grage-0000");
+  strcpy(config.apSSID, "grage-0000");
+  strcpy(config.apPassword, "0000");
   genRandomID('a','z', 32);
 }
 

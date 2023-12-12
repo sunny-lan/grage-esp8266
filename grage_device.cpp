@@ -8,12 +8,19 @@
 
 char jsonBuf[512];
 
+#include "config.h"
+#include "io.h"
+#include "ota.h"
+#include "wifi.h"
+#include "ws.h"
+
+
 void setup()
 {
   Serial.begin(115200);
   //Serial.setDebugOutput(true);
   if (
-      setupConfg() ||
+      setupConfig() ||
       setupIO() ||
       setupWifi(true) ||
       setupOTA() ||
