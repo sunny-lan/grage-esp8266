@@ -1,7 +1,6 @@
 #include <ESP8266WiFi.h>
 #include <DNSServer.h>        //Local DNS Server used for redirecting all requests to the configuration portal
 #include <ESP8266WebServer.h> //Local WebServer used to serve the configuration portal
-#include <WiFiManager.h>      //https://github.com/tzapu/WiFiManager WiFi Configuration Magic
 #include <ArduinoOTA.h>
 #include <WebSocketsClient.h>
 #include <ArduinoJson.h>
@@ -11,9 +10,10 @@ char jsonBuf[512];
 #include "config.h"
 #include "io.h"
 #include "ota.h"
-#include "wifi.h"
+#include "setupSwitch.h"
 #include "ws.h"
 
+static const uint8_t config_pin = D2;
 
 void setup()
 {
@@ -22,7 +22,7 @@ void setup()
   if (
       setupConfig() ||
       setupIO() ||
-      setupWifi(true) ||
+      setupSwitch() ||
       setupOTA() ||
       setupWS())
   {
@@ -32,7 +32,10 @@ void setup()
 
 void loop() 
 {
-  handleOTA();
-  handleIO();
-  handleWS();
+  if(digitalRead(config_pin) == LOW){
+    handleIO();
+    handleWS();
+  }else{
+    handleOTA();
+  }
 }
