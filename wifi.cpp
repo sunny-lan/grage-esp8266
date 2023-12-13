@@ -6,15 +6,21 @@
 
 bool setupAP(){
     wifiState = WifiState::NONE;
-
     Serial.println("Changing to AP mode");
-    if(!WiFi.mode(WIFI_AP)){
-        Serial.println("Failed changing to AP mode");
-        return false;
+    
+  #ifdef ESP8266
+    // @bug workaround for bug #4372 https://github.com/esp8266/Arduino/issues/4372
+    if(!WiFi.mode(WIFI_AP)) {
+      #ifdef WM_DEBUG_LEVEL
+      DEBUG_WM(WM_DEBUG_ERROR,F("[ERROR] enableAP failed!"));
+      #endif
+      return false;
     }
+    delay(500); // workaround delay
+  #endif
 
-    IPAddress local_IP(1,1,1,2);
-    IPAddress gateway(1,1,1,1);
+    IPAddress local_IP(192,168,1,2);
+    IPAddress gateway(192,168,1,1);
     IPAddress subnet(255,255,255,0);
 
     Serial.println("Setting soft-AP configuration ... ");
@@ -29,6 +35,8 @@ bool setupAP(){
         return false;
     }
     
+    delay(500); // slight delay to make sure we get an AP IP
+    
     Serial.print("Soft-AP IP address = ");
     Serial.println(WiFi.softAPIP());
 
@@ -41,7 +49,7 @@ WifiState wifiState = WifiState::NONE;
 
 bool setupSTA(){
     wifiState = WifiState::NONE;
-
+    
     Serial.println("Changing to station mode");
     if(!WiFi.mode(WIFI_STA)){
         Serial.println("Failed changing to STA mode");
@@ -57,11 +65,10 @@ bool setupSTA(){
     return true;
 }
 
-void checkSTAConnected(){
+bool checkSTAConnected(){
     if(WiFi.status() != WL_CONNECTED) { // Wait for the Wi-Fi to connect
         Serial.println("Waiting for connection to wifi");
-        delay(1000);
-        return;
+        return false;
     }
 
     wifiState = WifiState::STA_CONNECTED;
@@ -69,20 +76,23 @@ void checkSTAConnected(){
     Serial.println("Connection established!");  
     Serial.print("IP address:\t");
     Serial.println(WiFi.localIP());         // Send the IP address of the ESP8266 to the computer
+    return true;
 }
 
 void handleWifi(){
+    bool res=true;
     if(configMode){
         if(wifiState != WifiState::AP){
-            setupAP();
+            res=setupAP();
         }
     }else{
         if(wifiState != WifiState::STA_CONNECTED){
             if(wifiState == WifiState::STA){
-                checkSTAConnected();
+                res=checkSTAConnected();
             }else{
-                setupSTA();
+                res=setupSTA();
             }
         }
     }
+    if(!res)delay(1000);
 }

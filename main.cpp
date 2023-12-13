@@ -13,12 +13,14 @@ static const uint8_t config_pin = D2;
 void setup()
 {
   Serial.begin(115200);
+  Serial.setDebugOutput(true);
   pinMode(config_pin, INPUT_PULLUP);
   
   if (
-      setupConfig() ||
-      setupOTA() ||
-      !setupWebserver()
+      setupConfig() 
+       || setupOTA()
+      || !setupWebserver()
+      || setupWS()
   )
   {
     ESP.restart();
@@ -29,12 +31,7 @@ int lastLevel = HIGH;
 
 void onModeChanged(){
   Serial.printf("Config mode: %s\n", configMode?"on":"off");
-  if(configMode)
-  {
-    startWebserver();
-  }else{
-    stopWebserver();
-  }
+
 }
 
 void loop() 
@@ -47,15 +44,16 @@ void loop()
   }
 
   handleWifi();
+  handleOTA();
+  handleWebserver();
+  handleWS();
 
   if(configMode){
     if(wifiState==WifiState::AP){
-      handleOTA();
     }
   }else{
     if(wifiState==WifiState::STA_CONNECTED) {
       handleIO();
-      handleWS();
     }
   }
 

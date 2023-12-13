@@ -2,6 +2,7 @@
 
 #include "ota.h"
 #include "config.h"
+#include "wifi.h"
 
 bool setupOTA()
 {
@@ -37,11 +38,21 @@ bool setupOTA()
       Serial.println("End Failed");
   });
 
-  ArduinoOTA.begin();
 
   return 0;
 }
 
+bool on=false;
+
 void handleOTA(){
-  ArduinoOTA.handle();
+  
+  bool isAp =( wifiState==WifiState::AP);
+  if(isAp != on){
+    if(isAp)ArduinoOTA.begin();
+    else ArduinoOTA.end();
+    on=isAp;
+  }
+
+  if(on)
+    ArduinoOTA.handle();
 }

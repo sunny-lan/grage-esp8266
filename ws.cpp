@@ -5,6 +5,7 @@
 #include "shared.h"
 #include "config.h"
 #include "io.h"
+#include "wifi.h"
 
 const char *wsPath = "/ws";
 
@@ -13,10 +14,6 @@ WebSocketsClient ws;
 void handleWsEvent(WStype_t type, uint8_t *payload, size_t length);
 bool setupWS()
 {
-  // server address, port and URL
-  //ws.begin(config.wsHost, 80, wsPath); //TODO get ssl working
-  ws.beginSSL(config.wsHost, 443, wsPath);
-
   // event handler
   ws.onEvent(handleWsEvent);
 
@@ -68,7 +65,7 @@ void handleWsEvent(WStype_t type, uint8_t *payload, size_t length)
     case WStype_CONNECTED:
       wsConnected = true;
       Serial.printf("[WSc] Connected to url: %s\n", payload);
-      reconnectTries = 0;
+      reconnectTries = 0; 
       initWSConnection();
       break;
     case WStype_TEXT:
@@ -105,8 +102,25 @@ bool handleMessage(char *payload, size_t length) {
   return false;
 }
 
+bool isWsRunning = false;
+
 void handleWS() {
-  if (wsConnected)
-    refreshConnection();
-  ws.loop();
+  bool shouldWsRun = (wifiState == WifiState::STA_CONNECTED);
+  if(shouldWsRun!=isWsRunning){
+    if(shouldWsRun){
+      
+      // server address, port and URL
+      //ws.begin(config.wsHost, 80, wsPath); //TODO get ssl working
+      ws.beginSSL(config.wsHost, 443, wsPath);
+      isWsRunning=true;
+    }else{
+      
+    }
+  }
+
+  if(shouldWsRun){
+    if (wsConnected)
+      refreshConnection();
+    ws.loop();
+  }
 }

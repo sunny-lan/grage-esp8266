@@ -31,7 +31,7 @@ bool setupConfig()
   Serial.print("before config deviceName = "); Serial.println(config.deviceName);
   Serial.print("before config deviceID = "); Serial.println(config.deviceID);
   Serial.print("before config apSSID = "); Serial.println(config.apSSID);
-  Serial.print("before config apPassword = "); Serial.println(config.apSSID);
+  Serial.print("before config apPassword = "); Serial.println(config.apPassword);
   
   return 0;
 }
@@ -87,9 +87,9 @@ void genRandomID(char st, char ed, int len)
 void setConfigDefaults()
 {
   strcpy(config.wsHost, "grage.azurewebsites.net");
-  strcpy(config.deviceName, "grage-0000");
-  strcpy(config.apSSID, "grage-0000");
-  strcpy(config.apPassword, "0000");
+  strcpy(config.deviceName, "grage0000");
+  strcpy(config.apSSID, "grage0000");
+  strcpy(config.apPassword, "00000000");
   genRandomID('a','z', 32);
 }
 
