@@ -5,6 +5,8 @@
 
 Config config;
 
+void setConfigDefaults();
+
 bool setupConfig()
 {
   Serial.println("mounting FS...");
@@ -48,10 +50,18 @@ bool loadConfig()
     if (configFile) 
     {
       Serial.println("opened config file");
-      configFile.readBytes((char*)&config, sizeof(config));
+      size_t amt_read = configFile.readBytes((char*)&config, sizeof(config));
       
-      Serial.println("read config file");
+      Serial.printf("read config file sz=%zu expected=%zu",
+        amt_read, sizeof(config));
+
       configFile.close();
+      
+
+      if(amt_read!=sizeof(config)){
+        Serial.println("size not matching - loadconfig failed");
+        return true; 
+      }
       return 0;
     }
   }
